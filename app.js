@@ -1169,17 +1169,38 @@ function renderBuilderComponents() {
 
 function renderPreviewComponents() {
     if (!elements.previewComponents) return;
-    if (state.currentReportComponents.length === 0) { elements.previewComponents.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center py-10">Preview vazio</p>`; return; }
-    let html = ''; const sortedComponents = [...state.currentReportComponents].sort((a, b) => a.order - b.order);
-    for (let i = 0; i < sortedComponents.length; i++) { const comp = sortedComponents[i]; const nextComp = sortedComponents[i + 1]; const isHalf = comp.width === 'half'; const nextIsHalf = nextComp?.width === 'half'; if (isHalf && nextIsHalf) { html += `<div class="grid grid-cols-2 gap-4"><div>${renderSinglePreviewComponent(comp)}</div><div>${renderSinglePreviewComponent(nextComp)}</div></div>`; i++; } else { html += renderSinglePreviewComponent(comp); } }
-    elements.previewComponents.innerHTML = html;
-    try { lucide.createIcons(); } catch(e) {}
-}
-function renderSinglePreviewComponent(component, isFillForm = false, value = null) {
-     const inputId = `${isFillForm ? 'fill' : 'preview'}_${component.id}`; 
-     const nameAttr = `component_${component.order}`;
-     const requiredAttr = component.required && isFillForm ? 'required' : '';
-     const baseClass = isFillForm ? 'form-input' : 'form-input pointer-events-none opacity-70';
+    if (state.currentReportComponents.length === 0) {
+        elements.previewComponents.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center py-10">Preview vazio</p>`;
+        return;
+    }
+
+    // --- Garante IDs únicos e persistentes ---
+    state.currentReportComponents = state.currentReportComponents.map((comp, i) => ({
+        ...comp,
+        id: comp.id || `auto_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 5)}`
+    }));
+
+    const sortedComponents = [...state.currentReportComponents].sort((a, b) => a.order - b.order);
+    let html = '';
+
+    for (let i = 0; i < sortedComponents.length; i++) {
+        const comp = sortedComponents[i];
+        const nextComp = sortedComponents[i + 1];
+        const isHalf = comp.width === 'half';
+        const nextIsHalf = nextComp?.width === 'half';
+
+        if (isHalf && nextIsHalf) {
+            html += `
+                <div class="grid grid-cols-2 gap-4">
+                    <div>${renderSinglePreviewComponent(comp)}</div>
+                    <div>${renderSinglePreviewComponent(nextComp)}</div>
+                </div>`;
+            i++;
+        } else {
+            html += renderSinglePreviewComponent(comp);
+        }
+    }
+
 
      let inputHtml = '';
      switch (component.type) {
@@ -1812,5 +1833,6 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
 
 
