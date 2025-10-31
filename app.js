@@ -1211,6 +1211,8 @@ function renderSinglePreviewComponent(component, isFillForm = false, value = nul
     }
 
     return `<div class="mb-4"><label class="block text-sm font-medium mb-1">${component.label || 'Campo'}</label>${inputHtml}</div>`;
+    window.renderSinglePreviewComponent = renderSinglePreviewComponent;
+
 }
 
 function renderPreviewComponents() {
@@ -1883,6 +1885,7 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
 
 
 
