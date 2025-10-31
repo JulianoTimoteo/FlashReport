@@ -1616,78 +1616,81 @@ async function updateUserAuthorization(uid, authorized) {
     }
 }
 
-// CORREÇÃO: Função de ditado para Textarea
-function handleDictationClick(btn) {
-    const targetId = btn.dataset.target;
-    const targetEl = document.getElementById(targetId);
-    if (!targetEl) {
+// --- CORREÇÃO FINAL: Função de Ditado Individual por Campo ---
+function handleDictationClick(buttonElement) {
+    const targetId = buttonElement.dataset.target;
+    const targetInput = document.getElementById(targetId);
+
+    if (!targetInput) {
         console.warn("[Speech] Elemento alvo não encontrado:", targetId);
         return;
     }
 
-    state.speechTarget = targetEl;
-    startSpeechRecognition();
-}
-
-    // 1. Lógica de Início/Parada (se o mesmo botão for clicado)
-    if (buttonElement.classList.contains('listening')) {
-        state.speechRecognition.stop();
-        buttonElement.classList.remove('listening');
-        showToast('Ditado parado.', 'info');
+    if (!state.speechRecognition) {
+        showToast("Reconhecimento de voz não disponível neste navegador.", "error");
         return;
     }
 
-    // 2. Parar instância anterior (se outro botão foi clicado)
-    if (state.speechTarget) {
+    // Parar ditado atual se o mesmo botão for clicado
+    if (buttonElement.classList.contains("listening")) {
         state.speechRecognition.stop();
-        const prevButton = state.speechTarget.parentElement.querySelector('.dictation-button.listening');
-        if (prevButton) {
-            prevButton.classList.remove('listening');
-        }
+        buttonElement.classList.remove("listening");
+        showToast("Ditado parado.", "info");
+        return;
     }
 
-    // 3. Configurar e iniciar nova gravação
+    // Parar instância anterior, se existir
+    if (state.speechTarget && state.speechTarget !== targetInput) {
+        state.speechRecognition.stop();
+        const prevButton = document.querySelector(".dictation-button.listening");
+        if (prevButton) prevButton.classList.remove("listening");
+    }
+
+    // Definir novo alvo
     state.speechTarget = targetInput;
-    buttonElement.classList.add('listening');
+    buttonElement.classList.add("listening");
 
+    // Configurar callbacks de reconhecimento
     state.speechRecognition.onresult = (event) => {
-        let finalTranscript = '';
-
-        for (let i = 0; i < event.results.length; ++i) {
+        let transcript = "";
+        for (let i = 0; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
+                transcript += event.results[i][0].transcript;
             }
         }
-        
-        // CORREÇÃO CRÍTICA: Adicionar o novo texto final ao valor existente do campo correto.
-        targetInput.focus();
-        
-        // Adiciona espaço ANTES se o campo já tiver conteúdo e não houver pontuação de espaço
-        const currentValue = targetInput.value;
-        if (currentValue.length > 0 && finalTranscript.trim().length > 0 && 
-            !currentValue.endsWith(' ') && 
-            !currentValue.match(/[\.\,\?\!]$/)) {
-            targetInput.value += ' ';
-        }
-        targetInput.value += finalTranscript;
+
+        const target = state.speechTarget;
+        if (!target) return;
+
+        const current = target.value;
+        const needsSpace =
+            current.length > 0 &&
+            transcript.trim().length > 0 &&
+            !current.endsWith(" ") &&
+            !current.match(/[\.\,\?\!]$/);
+
+        target.value = current + (needsSpace ? " " : "") + transcript;
+        target.focus();
     };
 
-    state.speechRecognition.onerror = (event) => {
-        showToast(`Erro no ditado: ${event.error}`, 'error');
-        buttonElement.classList.remove('listening');
+    state.speechRecognition.onerror = (e) => {
+        console.error("[Speech] Erro:", e);
+        showToast(`Erro no ditado: ${e.error}`, "error");
+        buttonElement.classList.remove("listening");
         state.speechTarget = null;
     };
 
     state.speechRecognition.onend = () => {
-        buttonElement.classList.remove('listening');
+        buttonElement.classList.remove("listening");
         state.speechTarget = null;
-        showToast('Ditado finalizado.', 'info');
+        showToast("Ditado finalizado.", "info");
     };
 
+    // Iniciar reconhecimento
+    state.speechRecognition.lang = "pt-BR";
     state.speechRecognition.start();
-    showToast('Comece a falar agora...', 'info');
+    showToast("Comece a falar...", "info");
 }
-
 // CORREÇÃO: Inicialização da API de Reconhecimento de Fala
 function setupSpeechRecognition() { 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1809,4 +1812,5 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
 
