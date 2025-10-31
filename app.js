@@ -1617,20 +1617,17 @@ async function updateUserAuthorization(uid, authorized) {
 }
 
 // CORREÇÃO: Função de ditado para Textarea
-function handleDictationClick(buttonElement) {
-    const targetId = buttonElement.dataset.target;
-    // O targetInput é o campo de entrada exato (textarea ou input)
-    const targetInput = document.getElementById(targetId);
-    
-    if (!targetInput) {
-        showToast('Campo de destino não encontrado.', 'error');
+function handleDictationClick(btn) {
+    const targetId = btn.dataset.target;
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) {
+        console.warn("[Speech] Elemento alvo não encontrado:", targetId);
         return;
     }
 
-    if (!state.speechRecognition) {
-        initSpeechRecognition();
-        if (!state.speechRecognition) return;
-    }
+    state.speechTarget = targetEl;
+    startSpeechRecognition();
+}
 
     // 1. Lógica de Início/Parada (se o mesmo botão for clicado)
     if (buttonElement.classList.contains('listening')) {
@@ -1812,3 +1809,4 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
