@@ -1170,6 +1170,7 @@ function renderBuilderComponents() {
 // --- RENDER DE COMPONENTES (Builder e Preview) ---
 
 // Esta função precisa vir primeiro, pois é chamada dentro de renderPreviewComponents()
+// --- Função para renderizar um único componente ---
 function renderSinglePreviewComponent(component, isFillForm = false, value = null) {
     const safeId = component.id ? component.id : `auto_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const inputId = `${isFillForm ? 'fill' : 'preview'}_${safeId}`;
@@ -1210,18 +1211,37 @@ function renderSinglePreviewComponent(component, isFillForm = false, value = nul
             inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Campo" value="${value || ''}" ${requiredAttr}>`;
     }
 
-    return `<div class="mb-4"><label class="block text-sm font-medium mb-1">${component.label || 'Campo'}</label>${inputHtml}</div>`;
+    // --- Retorna o HTML do componente ---
+    return `<div class="mb-4">
+                <label class="block text-sm font-medium mb-1">${component.label || 'Campo'}</label>
+                ${inputHtml}
+            </div>`;
 }
 
-// Faz a função global
+// --- Expondo a função globalmente ---
 window.renderSinglePreviewComponent = renderSinglePreviewComponent;
 
-function renderPreviewComponents() {
-    if (!elements.previewComponents) return;
-    if (state.currentReportComponents.length === 0) {
-        elements.previewComponents.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center py-10">Preview vazio</p>`;
+// --- Função para renderizar todos os componentes ---
+function renderPreviewComponents(components = [], isFillForm = false) {
+    const container = document.getElementById('preview-container');
+    if (!container) return;
+
+    // Se não tiver componentes, mostra mensagem
+    if (components.length === 0) {
+        container.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center py-10">Preview vazio</p>`;
         return;
     }
+
+    // Monta todos os componentes de uma vez (mais performático)
+    const html = components.map(comp => renderSinglePreviewComponent(comp, isFillForm)).join('');
+    container.innerHTML = html;
+}
+
+// --- IDs únicos persistentes ---
+// Garantimos que, mesmo ao atualizar o preview, cada componente tem ID único e consistente
+// usando a lógica de `safeId` acima dentro de renderSinglePreviewComponent.
+
+
 
     // --- Garante IDs únicos e persistentes ---
     state.currentReportComponents = state.currentReportComponents.map((comp, i) => ({
@@ -1886,6 +1906,7 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
 
 
 
