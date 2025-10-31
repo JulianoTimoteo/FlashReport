@@ -82,7 +82,7 @@ const elements = {
     confirmTitleEl: document.getElementById('confirm-modal-title'),
     confirmMessageEl: document.getElementById('confirm-modal-message'),
     confirmBtn: document.getElementById('confirm-modal-confirm'),
-    confirmCancelBtn: document.getElementById('confirm-modal-cancel'), 
+    confirmCancelBtn: document.getElementById('confirm-modal-cancel'),
     userInfoSidebar: document.getElementById('user-info-sidebar'),
     userAvatarSidebar: document.getElementById('user-avatar-sidebar'),
     userNameSidebar: document.getElementById('user-name-sidebar'),
@@ -104,7 +104,7 @@ const elements = {
     viewReportFilledAt: document.getElementById('view-report-filled-at'),
     viewReportContent: document.getElementById('view-report-content'),
     closeViewReportBtn: document.getElementById('close-view-report-btn'),
-    userPasswordInput: document.getElementById('user-password'), 
+    userPasswordInput: document.getElementById('user-password'),
     togglePasswordVisibility: null,
     loginEmailInput: document.getElementById('username'),
     loginPasswordInput: document.getElementById('password'),
@@ -113,7 +113,7 @@ const elements = {
 
 // 3. --- Firebase Configuração (Chaves Reais) ---
 const FIREBASE_CONFIG = {
-    // CHAVES REAIS DO FIREBASE 
+    // CHAVES REAIS DO FIREBASE
     apiKey: "AIzaSyDW0N4iBt7xfJvK7qC8VCiB56NukDhDN_A",
     authDomain: "superapp-relatorios.firebaseapp.com",
     projectId: "superapp-relatorios",
@@ -127,8 +127,8 @@ let app, auth, db, googleProvider;
 let isFirebaseReady = false;
 
 // Paths de coleção
-const APP_ID = FIREBASE_CONFIG.projectId; 
-const ARTIFACT_ID = "superapp-relatorios-artifact"; 
+const APP_ID = FIREBASE_CONFIG.projectId;
+const ARTIFACT_ID = "superapp-relatorios-artifact";
 
 const USERS_COLLECTION_PATH = `appId/${APP_ID}/public/data/users`;
 const REPORT_TEMPLATES_COLLECTION_PATH = `artifacts/${ARTIFACT_ID}/public/data/report_templates`;
@@ -147,7 +147,7 @@ function showToast(message, type = 'success') {
     messageEl.textContent = message; let iconName = 'check-circle'; let iconClass = 'w-5 h-5 text-green-500';
     if (type === 'error') { iconName = 'x-circle'; iconClass = 'w-5 h-5 text-red-500'; }
     else if (type === 'warning') { iconName = 'alert-triangle'; iconClass = 'w-5 h-5 text-yellow-500'; }
-    else if (type === 'info') { iconName = 'info'; iconClass = 'w-5 h-5 text-blue-500'; } 
+    else if (type === 'info') { iconName = 'info'; iconClass = 'w-5 h-5 text-blue-500'; }
     iconEl.setAttribute('data-lucide', iconName); iconEl.className = iconClass;
     try { lucide.createIcons({ nodes: [iconEl] }); } catch (e) { console.error("[Lucide Error] Toast Icon:", e); }
     toastEl.classList.add('show'); setTimeout(() => { toastEl.classList.remove('show'); }, 3000);
@@ -185,11 +185,11 @@ function closeComponentModal() {
     console.log("[Modal] Component modal closed.");
 }
 function closeFillReportModal() {
-    elements.fillReportModal.classList.remove('active'); 
-    elements.fillReportForm.innerHTML = ''; 
-    currentFillReportId = null; 
+    elements.fillReportModal.classList.remove('active');
+    elements.fillReportForm.innerHTML = '';
+    currentFillReportId = null;
     elements.fillReportForm.dataset.draftId = '';
-    
+
     // Remove a classe de scroll do modal
     elements.fillReportModal.querySelector('.modal')?.classList.remove('modal-fill-scroll');
 
@@ -282,11 +282,11 @@ function handleLogin(e) {
         state.currentUser = adminUser;
         elements.loginScreen.classList.add('hidden'); elements.appScreen.classList.remove('hidden');
         updateUserInfoSidebar(state.currentUser); updateNotificationBell(); updateNavVisibility();
-        
+
         if (!state.users.find(u => u.id === 'local_admin')) {
              state.users.unshift(adminUser);
         }
-        
+
         showToast('Login como Admin (Local) realizado com sucesso! (Modo Offline)');
         renderUsersTable(); switchPage('dashboard');
         return;
@@ -294,17 +294,17 @@ function handleLogin(e) {
 
     if (isFirebaseReady) {
         loginButton.disabled = true;
-        
+
         signInWithEmailAndPassword(auth, email, password)
-            .catch(error => {
-                console.error("[Auth] Email/Password Login Error:", error);
-                elements.loginError.textContent = "Usuário/senha incorretos ou acesso não autorizado.";
-                elements.loginError.classList.remove('hidden');
-            })
-            .finally(() => {
-                loginButton.disabled = false;
-                try { lucide.createIcons(); } catch(e) {}
-            });
+             .catch(error => {
+                 console.error("[Auth] Email/Password Login Error:", error);
+                 elements.loginError.textContent = "Usuário/senha incorretos ou acesso não autorizado.";
+                 elements.loginError.classList.remove('hidden');
+             })
+             .finally(() => {
+                 loginButton.disabled = false;
+                 try { lucide.createIcons(); } catch(e) {}
+             });
         return;
     }
 
@@ -315,7 +315,7 @@ function handleLogin(e) {
 function handleLogout() {
     showConfirmModal("Confirmar Saída", "Tem certeza que deseja sair?", () => {
         if (state.currentUser && state.currentUser.id !== 'local_admin' && isFirebaseReady) {
-            firebaseHandleLogout(); 
+            firebaseHandleLogout();
         } else {
             elements.appScreen.classList.add('hidden'); elements.loginScreen.classList.remove('hidden');
             state.currentUser = null;
@@ -339,10 +339,10 @@ function initFirebase() {
         googleProvider = new GoogleAuthProvider();
         isFirebaseReady = true;
 
-        state.users = state.users.filter(u => u.id === 'local_admin'); 
+        state.users = state.users.filter(u => u.id === 'local_admin');
         state.savedReports = []; state.filledReports = []; state.draftReports = []; state.pendingUsers = [];
         state.notifications.pendingUsers = 0; state.notifications.draftReports = 0;
-        
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 checkAuthorizationAndLogin(user);
@@ -378,19 +378,19 @@ async function logActivity(action, details) {
 
 async function checkAuthorizationAndLogin(user) {
     const userDocRef = doc(db, USERS_COLLECTION_PATH, user.uid);
-    
+
     try {
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            
+
             if (userData.autorizado === true) {
                 const profile = userData.profile || 'admin';
                 const permissions = userData.permissions || (profile === 'admin' ? allPermissions : (profile === 'analyst' ? analystPermissions : userPermissions));
 
                 state.currentUser = {
-                    id: user.uid, 
+                    id: user.uid,
                     name: userData.name || user.email.split('@')[0],
                     email: user.email,
                     profile,
@@ -402,7 +402,7 @@ async function checkAuthorizationAndLogin(user) {
                 updateUserInfoSidebar(state.currentUser);
                 updateNotificationBell();
                 updateNavVisibility();
-                
+
                 showToast(`Bem-vindo(a), ${state.currentUser.name.split(' ')[0]}!`);
                 switchPage('dashboard');
 
@@ -410,7 +410,7 @@ async function checkAuthorizationAndLogin(user) {
                 fetchDrafts();
                 fetchFilledReports();
                 if (state.currentUser.permissions.canManageUsers) {
-                    fetchUsersRealtime(); 
+                    fetchUsersRealtime();
                 }
 
             } else {
@@ -422,7 +422,7 @@ async function checkAuthorizationAndLogin(user) {
                 name: user.displayName || user.email.split('@')[0],
                 email: user.email,
                 profile: 'user',
-                autorizado: false, 
+                autorizado: false,
                 createdAt: new Date().toISOString(),
                 permissions: userPermissions
             };
@@ -440,7 +440,7 @@ async function checkAuthorizationAndLogin(user) {
 
 async function signInWithGoogle() {
     if (!isFirebaseReady) { showToast("Firebase não inicializado.", "error"); return; }
-    
+
     const googleBtn = document.getElementById('login-google-btn');
     if (googleBtn) googleBtn.disabled = true;
 
@@ -470,8 +470,8 @@ async function firebaseHandleLogout() {
 
 async function saveReportTemplateToFirestore(id, data) {
     if (!isFirebaseReady) throw new Error("Firebase não pronto.");
-    
-    const docData = { ...data, userId: state.currentUser.id }; 
+
+    const docData = { ...data, userId: state.currentUser.id };
 
     const docRef = id ? doc(db, REPORT_TEMPLATES_COLLECTION_PATH, id) : doc(collection(db, REPORT_TEMPLATES_COLLECTION_PATH));
     await setDoc(docRef, docData, { merge: true });
@@ -492,11 +492,11 @@ async function deleteReportTemplateFromFirestore(id) {
 }
 async function saveDraftToFirestore(id, data) {
     if (!isFirebaseReady) throw new Error("Firebase não pronto.");
-    
+
     if (!data.data || data.data.some(item => !item.componentLabel)) {
         throw new Error("Draft data is malformed or empty.");
     }
-    
+
     const docRef = id ? doc(db, DRAFTS_COLLECTION_PATH, id) : doc(collection(db, DRAFTS_COLLECTION_PATH));
     await setDoc(docRef, data, { merge: true });
     logActivity("save-draft", { templateId: data.templateId, draftId: docRef.id });
@@ -504,8 +504,8 @@ async function saveDraftToFirestore(id, data) {
 }
 async function saveFilledReportToFirestore(draftId, data) {
     if (!isFirebaseReady) throw new Error("Firebase não pronto.");
-    
-    const docData = { ...data, userId: state.currentUser.id }; 
+
+    const docData = { ...data, userId: state.currentUser.id };
 
     const newReportRef = await addDoc(collection(db, FILLED_REPORTS_COLLECTION_PATH), docData);
 
@@ -559,7 +559,7 @@ function fetchFilledReports() {
 }
 function fetchUsersRealtime() {
     if (!isFirebaseReady || !state.currentUser?.permissions?.canManageUsers) return;
-    const usersColRef = collection(db, USERS_COLLECTION_PATH); 
+    const usersColRef = collection(db, USERS_COLLECTION_PATH);
     onSnapshot(usersColRef, (snapshot) => {
         state.users = []; state.pendingUsers = [];
         snapshot.docs.forEach(doc => {
@@ -571,7 +571,7 @@ function fetchUsersRealtime() {
         });
         state.notifications.pendingUsers = state.pendingUsers.length;
         updateNotificationBell();
-        renderUsersTable(); 
+        renderUsersTable();
     }, (error) => { console.error("[Firestore] Error fetching users:", error); showToast("Erro ao carregar lista de usuários.", "error"); });
 }
 
@@ -608,13 +608,13 @@ function toggleNotificationDropdown() {
 
 function getComponentTypeInfo(type) {
     // Componente Audio removido
-    const componentTypes = { 
-        text: { name: 'Texto Curto', icon: 'type', options: [] }, 
-        textarea: { name: 'Texto Longo', icon: 'align-left', options: [] }, 
-        checkbox: { name: 'Seleção', icon: 'check-square', options: ['Item 1', 'Item 2'], singleSelection: false }, 
-        select: { name: 'Lista Suspensa', icon: 'list', options: ['Opção 1', 'Opção 2'] }, 
-        table: { name: 'Tabela', icon: 'table', options: [], columns: ['Coluna A', 'Coluna B'] }, 
-        image: { name: 'Imagem', icon: 'image', options: [] }, 
+    const componentTypes = {
+        text: { name: 'Texto Curto', icon: 'type', options: [] },
+        textarea: { name: 'Texto Longo', icon: 'align-left', options: [] },
+        checkbox: { name: 'Seleção', icon: 'check-square', options: ['Item 1', 'Item 2'], singleSelection: false },
+        select: { name: 'Lista Suspensa', icon: 'list', options: ['Opção 1', 'Opção 2'] },
+        table: { name: 'Tabela', icon: 'table', options: [], columns: ['Coluna A', 'Coluna B'] },
+        image: { name: 'Imagem', icon: 'image', options: [] },
         date: { name: 'Data', icon: 'calendar', options: [] },
         file: { name: 'Anexar Arquivo', icon: 'paperclip', options: [], allowedTypes: ['xlsx', 'word', 'pdf', 'txt'], maxFileSize: '5MB' }
     };
@@ -628,12 +628,12 @@ function addComponent(type) {
     renderBuilderComponents(); renderPreviewComponents();
 }
 
-function initSortable() { 
+function initSortable() {
     if (elements.reportBuilderArea) {
         new Sortable(elements.reportBuilderArea, {
             animation: 150,
             ghostClass: 'sortable-ghost',
-            
+
             onEnd: function (evt) {
     const { newIndex, oldIndex } = evt;
     if (newIndex === oldIndex) return;
@@ -712,18 +712,18 @@ function toggleComponentWidth(id) {
 function editComponent(id) {
     const component = state.currentReportComponents.find(comp => comp.id === id); if (!component) { return; }
     state.editingComponentId = id; elements.componentModalTitle.textContent = `Editar ${getComponentTypeInfo(component.type).name}`; elements.componentId.value = id; elements.componentLabel.value = component.label; elements.componentRequired.checked = component.required;
-    const showOptions = component.type === 'select' || component.type === 'checkbox'; 
-    const showColumns = component.type === 'table'; 
+    const showOptions = component.type === 'select' || component.type === 'checkbox';
+    const showColumns = component.type === 'table';
     const showSingleSelection = component.type === 'checkbox';
-    
-    elements.componentOptionsContainer.classList.toggle('hidden', !showOptions); 
-    elements.componentColumnsContainer.classList.toggle('hidden', !showColumns); 
+
+    elements.componentOptionsContainer.classList.toggle('hidden', !showOptions);
+    elements.componentColumnsContainer.classList.toggle('hidden', !showColumns);
     elements.componentSingleSelectionContainer.classList.toggle('hidden', !showSingleSelection);
-    
-    if (showOptions) elements.componentOptions.value = (component.options || []).join('\n'); 
-    if (showColumns) elements.componentColumns.value = (component.columns || []).join('\n'); 
+
+    if (showOptions) elements.componentOptions.value = (component.options || []).join('\n');
+    if (showColumns) elements.componentColumns.value = (component.columns || []).join('\n');
     if (showSingleSelection) elements.componentSingleSelection.checked = component.singleSelection;
-    
+
     elements.componentModal.classList.add('active'); elements.componentLabel.focus(); elements.componentLabel.select();
 }
 function deleteComponent(id) {
@@ -745,7 +745,7 @@ function handleComponentFormSubmit(e) {
 function saveReport() {
     const title = elements.reportTitle.value.trim(); const editingId = state.editingReportId;
     if (!title) { showToast('Título obrigatório.', 'error'); elements.reportTitle.focus(); return; } if (state.currentReportComponents.length === 0) { showToast('Adicione componentes.', 'error'); return; }
-    const componentsToSave = [...state.currentReportComponents].sort((a,b)=>a.order-b.order).map(({ id, ...rest }) => ({...rest, order: rest.order})); 
+    const componentsToSave = [...state.currentReportComponents].sort((a,b)=>a.order-b.order).map(({ id, ...rest }) => ({...rest, order: rest.order}));
     if (!state.currentUser) { showToast('Usuário não autenticado.', 'error'); return; }
 
     const reportData = { title: title, components: componentsToSave, updatedBy: state.currentUser.email, lastUpdatedAt: new Date().toISOString(), status: 'active' };
@@ -755,15 +755,15 @@ function saveReport() {
         const originalText = elements.saveReportBtn.innerHTML;
         elements.saveReportBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Salvando...';
         elements.saveReportBtn.disabled = true;
-        
+
         saveReportTemplateToFirestore(editingId, reportData)
-            .then(() => { showToast(`Relatório ${editingId ? 'atualizado' : 'salvo'} com sucesso!`); clearReportBuilder(); switchPage('fill-report'); })
-            .catch((error) => { console.error("[Builder] Erro ao salvar no Firestore:", error); showToast('Erro ao salvar no Firestore. Verifique as regras de segurança.', 'error'); })
-            .finally(() => { elements.saveReportBtn.innerHTML = originalText; elements.saveReportBtn.disabled = false; try { lucide.createIcons(); } catch(e) {} });
+             .then(() => { showToast(`Relatório ${editingId ? 'atualizado' : 'salvo'} com sucesso!`); clearReportBuilder(); switchPage('fill-report'); })
+             .catch((error) => { console.error("[Builder] Erro ao salvar no Firestore:", error); showToast('Erro ao salvar no Firestore. Verifique as regras de segurança.', 'error'); })
+             .finally(() => { elements.saveReportBtn.innerHTML = originalText; elements.saveReportBtn.disabled = false; try { lucide.createIcons(); } catch(e) {} });
     } else {
         if (editingId) {
             const reportIndex = state.savedReports.findIndex(r => r.id === editingId);
-            if (reportIndex > -1) { state.savedReports[reportIndex] = { ...state.savedReports[reportIndex], ...reportData, id: editingId }; showToast('Relatório atualizado (Local)!'); } 
+            if (reportIndex > -1) { state.savedReports[reportIndex] = { ...state.savedReports[reportIndex], ...reportData, id: editingId }; showToast('Relatório atualizado (Local)!'); }
         } else {
             const newReport = { id: `report_${Date.now()}`, ...reportData, createdBy: state.currentUser?.name || 'Admin', status: 'active' };
             state.savedReports.push(newReport);
@@ -798,8 +798,8 @@ function deleteReport(reportId) {
     showConfirmModal("Excluir Modelo", `Excluir "${report?.title || reportId}"?`, () => {
         if (typeof deleteReportTemplateFromFirestore === 'function' && state.currentUser.id !== 'local_admin') {
             deleteReportTemplateFromFirestore(reportId)
-               .then(() => showToast('Modelo excluído!'))
-               .catch(() => showToast('Erro ao excluir no Firestore.', 'error'));
+                .then(() => showToast('Modelo excluído!'))
+                .catch(() => showToast('Erro ao excluir no Firestore.', 'error'));
         } else {
             state.savedReports = state.savedReports.filter(r => r.id !== reportId); renderSavedReports(); showToast('Modelo excluído (Local).');
         }
@@ -808,20 +808,20 @@ function deleteReport(reportId) {
 function toggleReportStatus(reportId) {
     const report = state.savedReports.find(r => r.id === reportId); if (!report) return;
     const newStatus = report.status === 'active' ? 'paused' : 'active';
-     if (typeof updateReportTemplateStatusInFirestore === 'function' && state.currentUser.id !== 'local_admin') {
-          updateReportTemplateStatusInFirestore(reportId, newStatus)
-             .then(() => showToast(`Status alterado para ${newStatus}.`))
-             .catch(() => showToast('Erro ao atualizar status.', 'error'));
-     } else {
-       report.status = newStatus; renderSavedReports(); showToast(`Status alterado para ${newStatus} (Local).`);
-     }
+      if (typeof updateReportTemplateStatusInFirestore === 'function' && state.currentUser.id !== 'local_admin') {
+           updateReportTemplateStatusInFirestore(reportId, newStatus)
+               .then(() => showToast(`Status alterado para ${newStatus}.`))
+               .catch(() => showToast('Erro ao atualizar status.', 'error'));
+      } else {
+        report.status = newStatus; renderSavedReports(); showToast(`Status alterado para ${newStatus} (Local).`);
+      }
 }
 function getFilledData(form) {
     const reportTemplate = state.savedReports.find(r => r.id === currentFillReportId); if (!reportTemplate) { console.error("[Fill] Template not found."); return null; }
     const filledData = [];
-    
-    (reportTemplate.components || []).forEach((component, index) => { 
-        const inputNameBase = `component_${component.order ?? index}`; 
+
+    (reportTemplate.components || []).forEach((component, index) => {
+        const inputNameBase = `component_${component.order ?? index}`;
         let value = null;
 
         // Tratamento de arquivos e imagens (que usam input hidden para o valor final)
@@ -830,36 +830,36 @@ function getFilledData(form) {
              // Limpar o valor do file input para não enviar dados binários (causa erro 400)
              const fileInput = form.querySelector(`input[id="${'fill'}_${component.id}"]`);
              if (fileInput) fileInput.value = '';
-             
+
              value = hiddenInput?.value || null;
         }
-        
+
         // Tratamento de checkbox
-        else if (component.type === 'checkbox' && !component.singleSelection) { 
-            value = Array.from(form.querySelectorAll(`input[name^="${inputNameBase}_"]:checked`)).map(el => el.value); 
+        else if (component.type === 'checkbox' && !component.singleSelection) {
+             value = Array.from(form.querySelectorAll(`input[name^="${inputNameBase}_"]:checked`)).map(el => el.value);
         }
-        
+
         // Tratamento de tabela
         else if (component.type === 'table') {
             value = []; const tableContainer = form.querySelector(`[data-input-name="${inputNameBase}"]`);
-            tableContainer?.querySelectorAll('.dynamic-table-row').forEach(rowEl => { 
-                const rowObject = {}; let rowHasValue = false;
-                rowEl.querySelectorAll('input[type="text"]').forEach(inputEl => {
-                    const colName = inputEl.dataset.colName; rowObject[colName] = inputEl.value; if(inputEl.value) rowHasValue = true;
-                });
-                if(rowHasValue) value.push(rowObject);
+            tableContainer?.querySelectorAll('.dynamic-table-row').forEach(rowEl => {
+                 const rowObject = {}; let rowHasValue = false;
+                 rowEl.querySelectorAll('input[type="text"]').forEach(inputEl => {
+                     const colName = inputEl.dataset.colName; rowObject[colName] = inputEl.value; if(inputEl.value) rowHasValue = true;
+                 });
+                 if(rowHasValue) value.push(rowObject);
             });
         }
-        
+
         // Tratamento de outros inputs simples (text, textarea, select, date, radio, audio)
-        else { 
+        else {
             const input = form.querySelector(`[name="${inputNameBase}"]`);
-            value = input ? input.value : null; 
+            value = input ? input.value : null;
         }
 
         filledData.push({ componentLabel: component.label, componentType: component.type, value: value ?? '' });
     });
-    
+
     // Filtra dados com valor nulo para tentar evitar erros de serialização no Firestore
     const cleanedFilledData = filledData.filter(item => item.value !== null && item.value !== undefined);
     return cleanedFilledData;
@@ -869,24 +869,24 @@ function handleSaveDraft(e) {
     e.preventDefault();
     if (!currentFillReportId || !state.currentUser) { showToast('Usuário ou relatório não disponível.', 'error'); return; }
     const reportTemplate = state.savedReports.find(r => r.id === currentFillReportId); if (!reportTemplate) return;
-    
+
     // Coletar apenas dados serializáveis
-    const filledData = getFilledData(elements.fillReportForm); 
-    if (!filledData || filledData.length === 0) { 
-        showToast("Nenhum dado válido para salvar no rascunho.", "warning"); return; 
+    const filledData = getFilledData(elements.fillReportForm);
+    if (!filledData || filledData.length === 0) {
+         showToast("Nenhum dado válido para salvar no rascunho.", "warning"); return;
     }
-    
+
     const existingDraftId = elements.fillReportForm.dataset.draftId;
 
-    const draftData = { 
-        templateId: currentFillReportId, 
-        templateTitle: reportTemplate.title, 
-        createdByEmail: state.currentUser.email, 
-        createdByName: state.currentUser.name, 
-        lastUpdatedAt: new Date().toISOString(), 
+    const draftData = {
+        templateId: currentFillReportId,
+        templateTitle: reportTemplate.title,
+        createdByEmail: state.currentUser.email,
+        createdByName: state.currentUser.name,
+        lastUpdatedAt: new Date().toISOString(),
         data: filledData
     };
-    
+
     if (typeof saveDraftToFirestore === 'function' && state.currentUser.id !== 'local_admin') {
         const draftButton = elements.fillReportForm.querySelector('#save-draft-btn-modal');
         const originalText = draftButton.innerHTML;
@@ -895,14 +895,14 @@ function handleSaveDraft(e) {
 
         saveDraftToFirestore(existingDraftId, draftData)
            .then(() => { showToast("Rascunho salvo!"); closeFillReportModal(); })
-           .catch((error) => { 
-               console.error('[Firestore] Erro ao salvar rascunho:', error);
-               showToast('Erro ao salvar rascunho (Verifique regras do Firestore).', 'error');
+           .catch((error) => {
+              console.error('[Firestore] Erro ao salvar rascunho:', error);
+              showToast('Erro ao salvar rascunho (Verifique regras do Firestore).', 'error');
            })
-           .finally(() => { 
-               draftButton.innerHTML = originalText; 
-               draftButton.disabled = false; 
-               try { lucide.createIcons(); } catch(e) {} 
+           .finally(() => {
+              draftButton.innerHTML = originalText;
+              draftButton.disabled = false;
+              try { lucide.createIcons(); } catch(e) {}
            });
     } else {
         if (existingDraftId) {
@@ -920,12 +920,12 @@ function handleFillReportSubmit(e) {
     e.preventDefault();
     if (!currentFillReportId || !state.currentUser) { showToast('Usuário ou relatório não disponível.', 'error'); return; }
     const reportTemplate = state.savedReports.find(r => r.id === currentFillReportId); if (!reportTemplate) return;
-    
-    const filledData = getFilledData(elements.fillReportForm); 
+
+    const filledData = getFilledData(elements.fillReportForm);
     if (!filledData || filledData.length === 0) {
         showToast("Por favor, preencha o formulário antes de enviar.", "warning"); return;
     }
-    
+
     let isValid = true;
     (reportTemplate.components || []).forEach((component) => {
         if (component.required) {
@@ -940,12 +940,12 @@ function handleFillReportSubmit(e) {
         return;
     }
 
-    const filledReport = { 
-        templateId: currentFillReportId, 
-        templateTitle: reportTemplate.title, 
-        filledAt: new Date().toISOString(), 
-        filledByEmail: state.currentUser.email, 
-        filledByName: state.currentUser.name, 
+    const filledReport = {
+        templateId: currentFillReportId,
+        templateTitle: reportTemplate.title,
+        filledAt: new Date().toISOString(),
+        filledByEmail: state.currentUser.email,
+        filledByName: state.currentUser.name,
         data: filledData
     };
     const existingDraftId = elements.fillReportForm.dataset.draftId;
@@ -957,12 +957,12 @@ function handleFillReportSubmit(e) {
         submitButton.disabled = true;
 
         saveFilledReportToFirestore(existingDraftId, filledReport)
-             .then(() => { showToast("Salvo com sucesso!"); closeFillReportModal(); })
-             .catch((error) => { 
-                 console.error('[Firestore] Erro ao enviar relatório:', error);
-                 showToast('Erro ao enviar relatório (Verifique regras do Firestore).', 'error');
-             })
-             .finally(() => { submitButton.innerHTML = originalText; submitButton.disabled = false; try { lucide.createIcons(); } catch(e) {} });
+              .then(() => { showToast("Salvo com sucesso!"); closeFillReportModal(); })
+              .catch((error) => {
+                  console.error('[Firestore] Erro ao enviar relatório:', error);
+                  showToast('Erro ao enviar relatório (Verifique regras do Firestore).', 'error');
+              })
+              .finally(() => { submitButton.innerHTML = originalText; submitButton.disabled = false; try { lucide.createIcons(); } catch(e) {} });
     } else {
         filledReport.id = `filled_${Date.now()}`;
         state.filledReports.push(filledReport);
@@ -978,16 +978,16 @@ function handleTableAddRow(buttonEl) {
     if (!tableContainer) { return; }
     const rowsContainer = tableContainer.querySelector('.dynamic-table-rows-container');
     const firstRow = rowsContainer.querySelector('.dynamic-table-row');
-    
+
     if (firstRow) {
         const newRow = firstRow.cloneNode(true);
         newRow.querySelectorAll('input').forEach(input => {
-            input.value = ''; 
-            const name = input.getAttribute('name'); 
-            const newName = name.replace(/_\d+_/, `_${Date.now()}_`); 
+            input.value = '';
+            const name = input.getAttribute('name');
+            const newName = name.replace(/_\d+_/, `_${Date.now()}_`);
             input.setAttribute('name', newName);
         });
-        
+
         let removeButton = newRow.querySelector('.table-remove-row');
         if (!removeButton) {
             // Se a linha original não tinha botão (porque era a única), adiciona um.
@@ -995,12 +995,12 @@ function handleTableAddRow(buttonEl) {
         } else {
             removeButton.setAttribute('onclick', 'handleTableRemoveRow(this)');
         }
-        
+
         // Adiciona um botão de remoção à primeira linha se ela não tiver (a partir da segunda linha adicionada)
         if (rowsContainer.children.length === 1 && !rowsContainer.querySelector('.dynamic-table-row .table-remove-row')) {
             rowsContainer.querySelector('.dynamic-table-row').insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-danger table-remove-row" title="Remover Linha" onclick="handleTableRemoveRow(this)"><i data-lucide="minus"></i></button>`);
         }
-        
+
         rowsContainer.appendChild(newRow);
         try { lucide.createIcons(); } catch(e) {}
     } else { showToast("Erro ao adicionar linha: Tabela vazia.", "error"); }
@@ -1008,8 +1008,8 @@ function handleTableAddRow(buttonEl) {
 function handleTableRemoveRow(buttonEl) {
     const row = buttonEl.closest('.dynamic-table-row');
     const rowsContainer = row.parentElement;
-    
-    if (rowsContainer.children.length > 1) { 
+
+    if (rowsContainer.children.length > 1) {
         row.remove();
         // Remove o botão de remoção da última linha se ela se tornar a única
         if (rowsContainer.children.length === 1) {
@@ -1045,17 +1045,17 @@ function handleUserFormSubmit(e) {
     };
 
     try {
-        if (!userId) { 
+        if (!userId) {
             if (elements.userPasswordInput && (!password || password.length < 6)) { showToast('A senha é obrigatória e deve ter no mínimo 6 caracteres para novos usuários.', 'error'); submitBtn.disabled = false; submitBtn.innerHTML = 'Salvar'; try { lucide.createIcons(); } catch(e) {} return; }
             if (isFirebaseReady) {
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => { saveUser(userCredential.user.uid); })
-                    .catch((error) => {
-                        let msg = "Erro ao adicionar usuário.";
-                        if (error.code === 'auth/email-already-in-use') { msg = 'Este email já está em uso.'; }
-                        else if (error.code === 'auth/weak-password') { msg = 'A senha é muito fraca.'; }
-                        showToast(msg, 'error');
-                    });
+                     .then((userCredential) => { saveUser(userCredential.user.uid); })
+                     .catch((error) => {
+                         let msg = "Erro ao adicionar usuário.";
+                         if (error.code === 'auth/email-already-in-use') { msg = 'Este email já está em uso.'; }
+                         else if (error.code === 'auth/weak-password') { msg = 'A senha é muito fraca.'; }
+                         showToast(msg, 'error');
+                     });
             } else { // Fallback Local
                 if (state.users.some(u => u.email === email)) { showToast('Email já cadastrado (local).', 'error'); }
                 else {
@@ -1063,7 +1063,7 @@ function handleUserFormSubmit(e) {
                     state.users.push(newUser); showToast('Usuário adicionado (Local)!'); renderUsersTable(); closeUserModal();
                 }
             }
-        } else { 
+        } else {
             if (isFirebaseReady && userId !== 'local_admin') {
                 const userRef = doc(db, USERS_COLLECTION_PATH, userId);
                 const updateData = { name, email, profile, permissions };
@@ -1098,11 +1098,11 @@ function deleteUser(id) {
                     showToast('Usuário excluído (Firestore)!');
                     logActivity("delete-user", { targetUid: user.id, targetEmail: user.email });
                     if (user.id === auth.currentUser?.uid) {
-                         signOut(auth);
-                         showToast('Sua conta foi excluída.', 'warning');
+                            signOut(auth);
+                            showToast('Sua conta foi excluída.', 'warning');
                     }
-                } catch (e) { 
-                    showToast("Erro ao excluir registro do usuário. Verifique as regras de segurança.", 'error'); 
+                } catch (e) {
+                    showToast("Erro ao excluir registro do usuário. Verifique as regras de segurança.", 'error');
                     console.error("[Firestore] Delete User Error:", e);
                 }
             } else {
@@ -1120,7 +1120,7 @@ function renderBuilderComponents() {
         try { lucide.createIcons(); } catch(e) {}
         return;
     }
-    
+
     const sortedComponents = [...state.currentReportComponents].sort((a, b) => a.order - b.order);
     let html = '';
 
@@ -1129,48 +1129,47 @@ function renderBuilderComponents() {
         const typeInfo = getComponentTypeInfo(comp.type);
         const widthIcon = comp.width === 'full' ? 'columns' : 'maximize-2';
         const widthTitle = comp.width === 'full' ? 'Meia Largura' : 'Largura Total';
-        
+
         const componentHtml = `<div class="component-card ${comp.width==='half'?'w-1/2 float-left':'w-full'}" data-id="${comp.id}">
-            <div class="flex items-center justify-between mb-2 gap-2">
-                <div class="flex items-center gap-2 flex-grow min-w-0">
-                    <i data-lucide="${typeInfo.icon}" class="w-5 h-5 text-blue-500 flex-shrink-0"></i>
-                    <input type="text" class="component-label-input flex-grow min-w-0" value="${comp.label}" placeholder="Rótulo">
-                </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
-                    <button class="btn btn-sm btn-secondary p-1" data-action="toggle-width" title="${widthTitle}"><i data-lucide="${widthIcon}" class="w-4 h-4"></i></button>
-                    <button class="btn btn-sm btn-secondary p-1" data-action="edit" title="Editar"><i data-lucide="settings" class="w-4 h-4"></i></button>
-                    <button class="btn btn-sm btn-danger p-1" data-action="delete" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-            <div class="text-xs text-gray-500 flex items-center gap-2">
-                <span>${typeInfo.name}</span>
-                ${comp.required ? '<span class="text-red-500">*</span>' : ''}
-                ${comp.width==='half'?'<span class="text-indigo-500">(1/2)</span>':''}
-                ${comp.type==='checkbox'&&comp.singleSelection?'<span class="text-purple-500">(Única)</span>':''}
-            </div>
-        </div>`;
-        
+             <div class="flex items-center justify-between mb-2 gap-2">
+                 <div class="flex items-center gap-2 flex-grow min-w-0">
+                     <i data-lucide="${typeInfo.icon}" class="w-5 h-5 text-blue-500 flex-shrink-0"></i>
+                     <input type="text" class="component-label-input flex-grow min-w-0" value="${comp.label}" placeholder="Rótulo">
+                 </div>
+                 <div class="flex items-center gap-1 flex-shrink-0">
+                     <button class="btn btn-sm btn-secondary p-1" data-action="toggle-width" title="${widthTitle}"><i data-lucide="${widthIcon}" class="w-4 h-4"></i></button>
+                     <button class="btn btn-sm btn-secondary p-1" data-action="edit" title="Editar"><i data-lucide="settings" class="w-4 h-4"></i></button>
+                     <button class="btn btn-sm btn-danger p-1" data-action="delete" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                 </div>
+             </div>
+             <div class="text-xs text-gray-500 flex items-center gap-2">
+                 <span>${typeInfo.name}</span>
+                 ${comp.required ? '<span class="text-red-500">*</span>' : ''}
+                 ${comp.width==='half'?'<span class="text-indigo-500">(1/2)</span>':''}
+                 ${comp.type==='checkbox'&&comp.singleSelection?'<span class="text-purple-500">(Única)</span>':''}
+             </div>
+         </div>`;
+
         html += componentHtml;
 
         if (comp.width === 'full') {
             html += '<div class="clearfix"></div>';
         } else if (comp.width === 'half') {
             const nextComp = sortedComponents[i + 1];
-            
+
             if (!nextComp || nextComp.width !== 'half') {
                 html += '<div class="clearfix"></div>';
             }
         }
     }
-    
+
     elements.reportBuilderArea.innerHTML = html;
     try { lucide.createIcons(); } catch(e) {}
 }
 
 // --- RENDER DE COMPONENTES (Builder e Preview) ---
 
-// Esta função precisa vir primeiro, pois é chamada dentro de renderPreviewComponents()
-// --- Função para renderizar um único componente ---
+// --- Função para renderizar um único componente (Versão Corrigida e Unificada) ---
 function renderSinglePreviewComponent(component, isFillForm = false, value = null) {
     const safeId = component.id ? component.id : `auto_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const inputId = `${isFillForm ? 'fill' : 'preview'}_${safeId}`;
@@ -1181,75 +1180,113 @@ function renderSinglePreviewComponent(component, isFillForm = false, value = nul
 
     switch (component.type) {
         case 'text':
-            inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Digite..." value="${value || ''}" ${requiredAttr}>`;
-            break;
+             // Não adicionamos botão de ditado aqui
+             inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Digite..." value="${value || ''}" ${requiredAttr}>`;
+             break;
         case 'textarea':
-            inputHtml = `
-                <div class="relative">
-                    <textarea id="${inputId}" name="${nameAttr}" class="${baseClass} pr-10" rows="3" placeholder="Digite ou dite..." ${requiredAttr}>${value || ''}</textarea>
-                    <button type="button" class="dictation-button absolute right-3 top-3" data-target="${inputId}" title="Ditar" onclick="handleDictationClick(this)">
-                        <i data-lucide="mic" class="w-5 h-5"></i>
-                    </button>
-                </div>`;
-            break;
+             // Ditado é exclusivo do textarea
+             inputHtml = `<div class="relative"><textarea id="${inputId}" name="${nameAttr}" class="${baseClass} pr-10" rows="3" placeholder="Digite ou dite..." ${requiredAttr}>${value || ''}</textarea><button type="button" class="dictation-button absolute right-3 top-3" data-target="${inputId}" title="Ditar" onclick="handleDictationClick(this)"><i data-lucide="mic" class="w-5 h-5"></i></button></div>`;
+             break;
+        case 'checkbox':
+             if (component.singleSelection) {
+                 inputHtml = `<div class="space-y-2">${(component.options || []).map((opt, index) => `<label class="flex items-center gap-2 text-sm"><input type="radio" id="${inputId}_${index}" name="${nameAttr}" value="${opt}" class="rounded-full text-blue-500" ${requiredAttr} ${value === opt ? 'checked' : ''}><span>${opt}</span></label>`).join('')}</div>`;
+             } else {
+                 const values = Array.isArray(value) ? value : [];
+                 inputHtml = `<div class="space-y-2">${(component.options || []).map((opt, index) => `<label class="flex items-center gap-2 text-sm"><input type="checkbox" id="${inputId}_${index}" name="${nameAttr}_${index}" value="${opt}" class="rounded text-blue-500" ${values.includes(opt) ? 'checked' : ''}><span>${opt}</span></label>`).join('')}</div>`;
+             }
+             break;
         case 'select':
-            inputHtml = `<select id="${inputId}" name="${nameAttr}" class="${baseClass}" ${requiredAttr}>
-                <option value="">-- Selecione --</option>
-                ${(component.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-            </select>`;
-            break;
-        case 'date':
-            inputHtml = `<input type="date" id="${inputId}" name="${nameAttr}" class="${baseClass}" value="${value || ''}" ${requiredAttr}>`;
-            break;
+             inputHtml = `<select id="${inputId}" name="${nameAttr}" class="${baseClass}" ${requiredAttr}><option value="">-- Selecione --</option>${(component.options || []).map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
+             break;
+        case 'table':
+             const cols = component.columns || [];
+             inputHtml = `<div class="border rounded-lg overflow-hidden p-4" data-component-type="table" data-input-name="${nameAttr}"><div class="dynamic-table-header" style="grid-template-columns: repeat(${cols.length}, 1fr) 40px;">${cols.map(col => `<span>${col}</span>`).join('')}<span></span></div><div class="dynamic-table-rows-container space-y-2">`;
+
+             let currentRows = Array.isArray(value) && value.length > 0 ? value : [{}];
+
+             inputHtml += currentRows.map((rowData, rowIndex) => {
+                 const removeBtn = rowIndex > 0 || currentRows.length > 1 ? `<button type="button" class="btn btn-sm btn-danger table-remove-row" title="Remover Linha" onclick="handleTableRemoveRow(this)"><i data-lucide="minus"></i></button>` : `<span class="w-10"></span>`;
+
+                 return `<div class="dynamic-table-row" style="grid-template-columns: repeat(${cols.length}, 1fr) 40px;"><div class="dynamic-table-row-inputs" style="grid-column: 1 / span ${cols.length}; grid-template-columns: repeat(${cols.length}, 1fr);">${cols.map((col, colIndex) => `<input type="text" name="${nameAttr}_${rowIndex}_${colIndex}" data-col-name="${col}" class="${baseClass} form-input-sm" placeholder="..." value="${rowData[col] || ''}">`).join('')}</div>${removeBtn}</div>`;
+             }).join('');
+
+             if (isFillForm) {
+                 inputHtml += `</div><button type="button" class="btn btn-sm btn-secondary mt-3" onclick="handleTableAddRow(this)"><i data-lucide="plus" class="w-4 h-4"></i> Adicionar Linha</button></div>`;
+             } else {
+                 inputHtml += `</div></div>`;
+             }
+             break;
+        case 'audio':
+             // COMPONENTE AUDIO (Revertido para um campo simples, sem ditado próprio)
+             inputHtml = `<div class="relative flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                             ${isFillForm ? `<input type="text" id="${inputId}" class="${baseClass} flex-1" placeholder="Gravação de áudio desabilitada. Use o Texto Longo para ditado." value="${value || ''}" name="${nameAttr}" disabled>
+                                             <div class="text-xs text-gray-500 absolute bottom-0 left-3">[Recurso de Gravação de Áudio]</div>`
+                             : `<div class="flex-1 p-1 text-sm text-gray-500">[Gravação de Áudio]</div>`}
+                           </div>`;
+             break;
+
         case 'image':
-            inputHtml = `<input type="file" id="${inputId}" accept="image/*" class="block w-full text-sm text-gray-500" onchange="handleFileUpload(this, 'image')">`;
-            break;
+             const imgPreview = value ? `<p class="text-xs text-green-600 dark:text-green-400">Arquivo: ${value}</p>` : 'Nenhum arquivo anexado.';
+             const acceptImage = 'image/*';
+             inputHtml = `<div class="flex flex-col gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg" data-comp-type="image">
+                             ${isFillForm ? `<input type="file" id="${inputId}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100" accept="${acceptImage}" ${requiredAttr} onchange="handleFileUpload(this, 'image')">
+                                             <input type="hidden" id="${inputId}_value" name="${nameAttr}" value="${value || ''}">
+                                             <div id="${inputId}_preview" class="text-xs text-gray-500">${imgPreview}</div>` : `<div class="flex-1 p-1 text-sm text-gray-500">[Captura/Upload de Imagem]</div>`}
+                           </div>`;
+             break;
+
         case 'file':
-            inputHtml = `<input type="file" id="${inputId}" accept=".xlsx,.doc,.docx,.pdf,.txt" class="block w-full text-sm text-gray-500" onchange="handleFileUpload(this, 'file')">`;
-            break;
+             const allowedExts = (component.allowedTypes || ['pdf', 'txt']).join(', ');
+             const acceptFile = (component.allowedTypes || []).map(ext => {
+                 if (ext === 'word') return '.doc,.docx';
+                 if (ext === 'xlsx') return '.xlsx';
+                 return `.${ext}`;
+             }).join(',');
+             const filePreview = value ? `<p class="text-xs text-green-600 dark:text-green-400">Arquivo: ${value}</p>` : 'Nenhum arquivo anexado.';
+
+             inputHtml = `<div class="flex flex-col gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg" data-comp-type="file">
+                             ${isFillForm ? `<input type="file" id="${inputId}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" accept="${acceptFile}" ${requiredAttr} onchange="handleFileUpload(this, 'file')">
+                                             <input type="hidden" id="${inputId}_value" name="${nameAttr}" value="${value || ''}">
+                                             <div id="${inputId}_preview" class="text-xs text-gray-500">Aceita: ${allowedExts.toUpperCase()}. ${filePreview}</div>` : `<div class="flex-1 p-1 text-sm text-gray-500">[Anexo de Arquivo]</div>`}
+                           </div>`;
+             break;
+
+        case 'date':
+             inputHtml = `<input type="date" id="${inputId}" name="${nameAttr}" class="${baseClass}" value="${value || ''}" ${requiredAttr}>`;
+             break;
         default:
-            inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Campo" value="${value || ''}" ${requiredAttr}>`;
+             inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Campo" value="${value || ''}" ${requiredAttr}>`;
+             break;
     }
 
     // --- Retorna o HTML do componente ---
-    return `<div class="mb-4">
-                <label class="block text-sm font-medium mb-1">${component.label || 'Campo'}</label>
-                ${inputHtml}
-            </div>`;
+    return `<div class="space-y-2 mb-4"><label class="block text-sm font-medium dark:text-gray-300">${component.label}${component.required && isFillForm ? '<span class="text-red-500">*</span>' : ''}</label>${inputHtml}</div>`;
 }
 
 // --- Expondo a função globalmente ---
 window.renderSinglePreviewComponent = renderSinglePreviewComponent;
 
-// --- Função para renderizar todos os componentes ---
-function renderPreviewComponents(components = [], isFillForm = false) {
-    const container = document.getElementById('preview-container');
+// --- Função para renderizar todos os componentes (Preview) ---
+function renderPreviewComponents(components = state.currentReportComponents, isFillForm = false) {
+    const container = elements.previewComponents;
     if (!container) return;
 
-    // Se não tiver componentes, mostra mensagem
+    // Garante IDs únicos e persistentes para os componentes do builder
+    if (!isFillForm) {
+        state.currentReportComponents = state.currentReportComponents.map((comp, i) => ({
+            ...comp,
+            id: comp.id || `auto_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 5)}`
+        }));
+        components = state.currentReportComponents;
+    }
+
+
     if (components.length === 0) {
         container.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center py-10">Preview vazio</p>`;
         return;
     }
 
-    // Monta todos os componentes de uma vez (mais performático)
-    const html = components.map(comp => renderSinglePreviewComponent(comp, isFillForm)).join('');
-    container.innerHTML = html;
-}
-
-// --- IDs únicos persistentes ---
-// Garantimos que, mesmo ao atualizar o preview, cada componente tem ID único e consistente
-// usando a lógica de `safeId` acima dentro de renderSinglePreviewComponent.
-
-
-
-    // --- Garante IDs únicos e persistentes ---
-    state.currentReportComponents = state.currentReportComponents.map((comp, i) => ({
-        ...comp,
-        id: comp.id || `auto_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 5)}`
-    }));
-
-    const sortedComponents = [...state.currentReportComponents].sort((a, b) => a.order - b.order);
+    const sortedComponents = [...components].sort((a, b) => a.order - b.order);
     let html = '';
 
     for (let i = 0; i < sortedComponents.length; i++) {
@@ -1260,105 +1297,20 @@ function renderPreviewComponents(components = [], isFillForm = false) {
 
         if (isHalf && nextIsHalf) {
             html += `
-                <div class="grid grid-cols-2 gap-4">
-                    <div>${renderSinglePreviewComponent(comp)}</div>
-                    <div>${renderSinglePreviewComponent(nextComp)}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>${renderSinglePreviewComponent(comp, isFillForm)}</div>
+                    <div>${renderSinglePreviewComponent(nextComp, isFillForm)}</div>
                 </div>`;
             i++;
         } else {
-            html += renderSinglePreviewComponent(comp);
+            html += renderSinglePreviewComponent(comp, isFillForm);
         }
     }
 
-    elements.previewComponents.innerHTML = html;
+    container.innerHTML = html;
     try { lucide.createIcons(); } catch (e) {}
 }
 
-
-     let inputHtml = '';
-     switch (component.type) {
-         case 'text': 
-             // Não adicionamos botão de ditado aqui
-             inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Digite..." value="${value || ''}" ${requiredAttr}>`;
-             break;
-         case 'textarea': 
-             // Ditado é exclusivo do textarea
-             inputHtml = `<div class="relative"><textarea id="${inputId}" name="${nameAttr}" class="${baseClass} pr-10" rows="3" placeholder="Digite ou dite..." ${requiredAttr}>${value || ''}</textarea><button type="button" class="dictation-button absolute right-3 top-3" data-target="${inputId}" title="Ditar" onclick="handleDictationClick(this)"><i data-lucide="mic" class="w-5 h-5"></i></button></div>`;
-             break;
-         case 'checkbox':
-             if (component.singleSelection) {
-                 inputHtml = `<div class="space-y-2">${(component.options || []).map((opt, index) => `<label class="flex items-center gap-2 text-sm"><input type="radio" id="${inputId}_${index}" name="${nameAttr}" value="${opt}" class="rounded-full text-blue-500" ${requiredAttr} ${value === opt ? 'checked' : ''}><span>${opt}</span></label>`).join('')}</div>`;
-             } else {
-                 const values = Array.isArray(value) ? value : [];
-                 inputHtml = `<div class="space-y-2">${(component.options || []).map((opt, index) => `<label class="flex items-center gap-2 text-sm"><input type="checkbox" id="${inputId}_${index}" name="${nameAttr}_${index}" value="${opt}" class="rounded text-blue-500" ${values.includes(opt) ? 'checked' : ''}><span>${opt}</span></label>`).join('')}</div>`;
-             }
-             break;
-         case 'select':
-             inputHtml = `<select id="${inputId}" name="${nameAttr}" class="${baseClass}" ${requiredAttr}><option value="">-- Selecione --</option>${(component.options || []).map(opt => `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
-             break;
-         case 'table':
-             const cols = component.columns || [];
-             inputHtml = `<div class="border rounded-lg overflow-hidden p-4" data-component-type="table" data-input-name="${nameAttr}"><div class="dynamic-table-header" style="grid-template-columns: repeat(${cols.length}, 1fr) 40px;">${cols.map(col => `<span>${col}</span>`).join('')}<span></span></div><div class="dynamic-table-rows-container space-y-2">`;
-             
-             let currentRows = Array.isArray(value) && value.length > 0 ? value : [{}];
-             
-             inputHtml += currentRows.map((rowData, rowIndex) => {
-                 const removeBtn = rowIndex > 0 || currentRows.length > 1 ? `<button type="button" class="btn btn-sm btn-danger table-remove-row" title="Remover Linha" onclick="handleTableRemoveRow(this)"><i data-lucide="minus"></i></button>` : `<span class="w-10"></span>`;
-
-                 return `<div class="dynamic-table-row" style="grid-template-columns: repeat(${cols.length}, 1fr) 40px;"><div class="dynamic-table-row-inputs" style="grid-column: 1 / span ${cols.length}; grid-template-columns: repeat(${cols.length}, 1fr);">${cols.map((col, colIndex) => `<input type="text" name="${nameAttr}_${rowIndex}_${colIndex}" data-col-name="${col}" class="${baseClass} form-input-sm" placeholder="..." value="${rowData[col] || ''}">`).join('')}</div>${removeBtn}</div>`;
-             }).join('');
-             
-             if (isFillForm) {
-                 inputHtml += `</div><button type="button" class="btn btn-sm btn-secondary mt-3" onclick="handleTableAddRow(this)"><i data-lucide="plus" class="w-4 h-4"></i> Adicionar Linha</button></div>`;
-             } else {
-                 inputHtml += `</div></div>`;
-             }
-             break;
-         case 'audio': 
-             // COMPONENTE AUDIO (Revertido para um campo simples, sem ditado próprio)
-             inputHtml = `<div class="relative flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                           ${isFillForm ? `<input type="text" id="${inputId}" class="${baseClass} flex-1" placeholder="Gravação de áudio desabilitada. Use o Texto Longo para ditado." value="${value || ''}" name="${nameAttr}" disabled>
-                                          <div class="text-xs text-gray-500 absolute bottom-0 left-3">[Recurso de Gravação de Áudio]</div>` 
-                           : `<div class="flex-1 p-1 text-sm text-gray-500">[Gravação de Áudio]</div>`}
-                         </div>`;
-             break;
-             
-         case 'image': 
-             const imgPreview = value ? `<p class="text-xs text-green-600 dark:text-green-400">Arquivo: ${value}</p>` : 'Nenhum arquivo anexado.';
-             const acceptImage = 'image/*';
-             inputHtml = `<div class="flex flex-col gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg" data-comp-type="image">
-                          ${isFillForm ? `<input type="file" id="${inputId}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100" accept="${acceptImage}" ${requiredAttr} onchange="handleFileUpload(this, 'image')">
-                                         <input type="hidden" id="${inputId}_value" name="${nameAttr}" value="${value || ''}">
-                                         <div id="${inputId}_preview" class="text-xs text-gray-500">${imgPreview}</div>` : `<div class="flex-1 p-1 text-sm text-gray-500">[Captura/Upload de Imagem]</div>`}
-                         </div>`;
-             break;
-             
-         case 'file':
-             const allowedExts = (component.allowedTypes || ['pdf', 'txt']).join(', ');
-             const acceptFile = (component.allowedTypes || []).map(ext => {
-                 if (ext === 'word') return '.doc,.docx';
-                 if (ext === 'xlsx') return '.xlsx';
-                 return `.${ext}`;
-             }).join(',');
-             const filePreview = value ? `<p class="text-xs text-green-600 dark:text-green-400">Arquivo: ${value}</p>` : 'Nenhum arquivo anexado.';
-
-             inputHtml = `<div class="flex flex-col gap-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg" data-comp-type="file">
-                          ${isFillForm ? `<input type="file" id="${inputId}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" accept="${acceptFile}" ${requiredAttr} onchange="handleFileUpload(this, 'file')">
-                                         <input type="hidden" id="${inputId}_value" name="${nameAttr}" value="${value || ''}">
-                                         <div id="${inputId}_preview" class="text-xs text-gray-500">Aceita: ${allowedExts.toUpperCase()}. ${filePreview}</div>` : `<div class="flex-1 p-1 text-sm text-gray-500">[Anexo de Arquivo]</div>`}
-                         </div>`;
-             break;
-
-         case 'date': 
-             inputHtml = `<input type="date" id="${inputId}" name="${nameAttr}" class="${baseClass}" value="${value || ''}" ${requiredAttr}>`;
-             break;
-         default: 
-             inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Campo" value="${value || ''}" ${requiredAttr}>`;
-             break;
-     }
-
-     return `<div class="space-y-2"><label class="block text-sm font-medium dark:text-gray-300">${component.label}${component.required ? '<span class="text-red-500">*</span>' : ''}</label>${inputHtml}</div>`;
-}
 
 // --- FUNÇÃO DE MANIPULAÇÃO E COMPACTAÇÃO DE ARQUIVOS (Simulada) ---
 function handleFileUpload(inputElement, type) {
@@ -1368,17 +1320,17 @@ function handleFileUpload(inputElement, type) {
     const previewText = document.getElementById(inputId + '_preview');
 
     if (!file) {
-        hiddenValueInput.value = '';
-        previewText.innerHTML = 'Nenhum arquivo anexado.';
+        if(hiddenValueInput) hiddenValueInput.value = '';
+        if(previewText) previewText.innerHTML = 'Nenhum arquivo anexado.';
         return;
     }
 
     const originalSizeKB = (file.size / 1024).toFixed(2);
-    
-    hiddenValueInput.value = '';
-    previewText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin inline mr-2"></i> Processando ${type}... (${originalSizeKB} KB)`;
+
+    if(hiddenValueInput) hiddenValueInput.value = '';
+    if(previewText) previewText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin inline mr-2"></i> Processando ${type}... (${originalSizeKB} KB)`;
     try { lucide.createIcons(); } catch(e) {}
-    
+
     // Simulação de Compactação (Real ou Conceitual)
     if (type === 'image' && window.webkitSpeechRecognition) { // Usamos a verificação da API para simular um navegador moderno
         const reader = new FileReader();
@@ -1389,33 +1341,33 @@ function handleFileUpload(inputElement, type) {
                 canvas.width = img.width; canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, img.width, img.height);
-                
+
                 canvas.toBlob((blob) => {
                     const compressedSizeKB = (blob.size / 1024).toFixed(2);
                     const newFileName = `${file.name.split('.')[0]}_COMP.jpg`;
-                    
-                    hiddenValueInput.value = newFileName;
+
+                    if(hiddenValueInput) hiddenValueInput.value = newFileName;
                     showToast(`Imagem compactada de ${originalSizeKB} KB para ${compressedSizeKB} KB.`, 'success');
-                    previewText.innerHTML = `Arquivo: ${newFileName} (Economia de espaço!)`;
+                    if(previewText) previewText.innerHTML = `Arquivo: ${newFileName} (Economia de espaço!)`;
                     inputElement.value = ''; // Limpar o file input para evitar serialização binária
                 }, 'image/jpeg', 0.8);
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
-    } 
+    }
     else {
         setTimeout(() => {
             const fileNameParts = file.name.split('.');
             const fileExtension = fileNameParts.length > 1 ? fileNameParts.pop() : '';
             const fileNameBase = fileNameParts.join('.');
             const compressedFileName = `${fileNameBase}_COMP.${fileExtension}`;
-            
-            hiddenValueInput.value = compressedFileName;
+
+            if(hiddenValueInput) hiddenValueInput.value = compressedFileName;
             showToast(`Arquivo "${file.name}" pronto para upload (compactação simulada).`, 'success');
-            previewText.innerHTML = `Arquivo: ${compressedFileName} (Compactação simulada)`;
+            if(previewText) previewText.innerHTML = `Arquivo: ${compressedFileName} (Compactação simulada)`;
             inputElement.value = ''; // Limpar o file input para evitar serialização binária
-        }, 1000); 
+        }, 1000);
     }
 }
 
@@ -1427,7 +1379,8 @@ function fillReport(reportId, draftId = null) {
 
     currentFillReportId = reportId;
     elements.fillReportModalTitle.textContent = `Preencher Relatório: ${report.title}`;
-    
+    elements.fillReportForm.dataset.draftId = draftId || '';
+
     let draftData = {};
     if (draftId) {
         const draft = state.draftReports.find(d => d.id === draftId);
@@ -1444,13 +1397,13 @@ function fillReport(reportId, draftId = null) {
 
     let html = '';
     const sortedComponents = [...report.components].sort((a, b) => a.order - b.order);
-    
+
     for (let i = 0; i < sortedComponents.length; i++) {
         const comp = sortedComponents[i];
         const nextComp = sortedComponents[i + 1];
         const isHalf = comp.width === 'half';
         const nextIsHalf = nextComp?.width === 'half';
-        
+
         const value1 = draftData[comp.order] !== undefined ? draftData[comp.order] : comp.value;
 
         if (isHalf && nextIsHalf) {
@@ -1467,21 +1420,21 @@ function fillReport(reportId, draftId = null) {
 
 
     elements.fillReportForm.innerHTML = `
-        <div id="fill-report-content-scroll" class="space-y-6">
-           ${html}
-        </div>
-        <div class="fixed-modal-footer">
-            <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
-                <button type="button" id="save-draft-btn-modal" class="btn btn-warning"><i data-lucide="save" class="w-5 h-5"></i> Salvar Rascunho</button>
-                <button type="button" id="cancel-fill-report-btn-modal" class="btn btn-dark">Cancelar</button>
-                <button type="submit" class="btn btn-primary"><i data-lucide="send" class="w-5 h-5"></i> Enviar Relatório</button>
-            </div>
-        </div>
+         <div id="fill-report-content-scroll" class="space-y-6">
+             ${html}
+         </div>
+         <div class="fixed-modal-footer">
+             <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
+                 <button type="button" id="save-draft-btn-modal" class="btn btn-warning"><i data-lucide="save" class="w-5 h-5"></i> Salvar Rascunho</button>
+                 <button type="button" id="cancel-fill-report-btn-modal" class="btn btn-dark">Cancelar</button>
+                 <button type="submit" class="btn btn-primary"><i data-lucide="send" class="w-5 h-5"></i> Enviar Relatório</button>
+             </div>
+         </div>
     `;
 
     document.getElementById('save-draft-btn-modal').addEventListener('click', handleSaveDraft);
     document.getElementById('cancel-fill-report-btn-modal').addEventListener('click', closeFillReportModal);
-    
+
     try { lucide.createIcons(); } catch(e) {}
     elements.fillReportModal.classList.add('active');
 }
@@ -1489,11 +1442,11 @@ function fillReport(reportId, draftId = null) {
 function viewFilledReport(reportId) {
     const report = state.filledReports.find(r => r.id === reportId);
     if (!report) { showToast("Relatório preenchido não encontrado.", "error"); return; }
-    
+
     elements.viewReportModalTitle.textContent = report.templateTitle;
     elements.viewReportFilledBy.textContent = report.filledByName || report.filledByEmail;
     elements.viewReportFilledAt.textContent = new Date(report.filledAt).toLocaleString();
-    
+
     let html = '';
     (report.data || []).forEach(item => {
         let valueDisplay;
@@ -1517,24 +1470,25 @@ function viewFilledReport(reportId) {
         }
 
         html += `<div class="p-3 border-b dark:border-gray-700 last:border-b-0">
-            <h4 class="text-sm font-bold dark:text-gray-200">${item.componentLabel} (${getComponentTypeInfo(item.componentType).name})</h4>
-            <div class="mt-1">${valueDisplay}</div>
-        </div>`;
+             <h4 class="text-sm font-bold dark:text-gray-200">${item.componentLabel} (${getComponentTypeInfo(item.componentType).name})</h4>
+             <div class="mt-1">${valueDisplay}</div>
+         </div>`;
     });
-    
+
     elements.viewReportContent.innerHTML = html;
-    
+
     // CORREÇÃO CRÍTICA: Adiciona os botões de download e impressão ao footer do modal.
     const footerContainer = elements.viewReportModal.querySelector('.flex.justify-end.gap-3.pt-4.mt-6.border-t');
-    
+
+    // Remove botões existentes para evitar duplicação
     footerContainer.querySelectorAll('.btn:not(#close-view-report-btn)').forEach(btn => btn.remove());
 
     const buttonsHtml = `
-        <button type="button" class="btn btn-secondary print-hide" onclick="window.print()"><i data-lucide="printer" class="w-5 h-5"></i> Imprimir</button>
-        <button type="button" class="btn btn-success print-hide" onclick="showToast('Download PDF (simulado)', 'info')"><i data-lucide="file-text" class="w-5 h-5"></i> PDF</button>
-        <button type="button" class="btn btn-success print-hide" onclick="showToast('Download DOCX (simulado)', 'info')"><i data-lucide="file-text" class="w-5 h-5"></i> DOCX</button>
+         <button type="button" class="btn btn-secondary print-hide" onclick="window.print()"><i data-lucide="printer" class="w-5 h-5"></i> Imprimir</button>
+         <button type="button" class="btn btn-success print-hide" onclick="showToast('Download PDF (simulado)', 'info')"><i data-lucide="file-text" class="w-5 h-5"></i> PDF</button>
+         <button type="button" class="btn btn-success print-hide" onclick="showToast('Download DOCX (simulado)', 'info')"><i data-lucide="file-text" class="w-5 h-5"></i> DOCX</button>
     `;
-    
+
     elements.closeViewReportBtn.insertAdjacentHTML('beforebegin', buttonsHtml);
     try { lucide.createIcons(); } catch(e) {}
 
@@ -1548,10 +1502,10 @@ function deleteDraft(id) {
                .then(() => showToast('Rascunho excluído!'))
                .catch(() => showToast('Erro ao excluir rascunho.', 'error'));
         } else {
-            state.draftReports = state.draftReports.filter(d => d.id !== id); 
+            state.draftReports = state.draftReports.filter(d => d.id !== id);
             state.notifications.draftReports = state.notifications.draftReports - 1;
-            updateNotificationBell(); 
-            renderDraftReports(); 
+            updateNotificationBell();
+            renderDraftReports();
             showToast('Rascunho excluído (Local).');
         }
     }, 'btn-danger');
@@ -1594,20 +1548,20 @@ function renderDraftReports() {
     if (state.draftReports.length === 0) { elements.draftsListContainer.classList.add('hidden'); return; }
     elements.draftsListContainer.classList.remove('hidden');
     elements.draftsList.innerHTML = state.draftReports.sort((a,b) => new Date(b.lastUpdatedAt) - new Date(a.lastUpdatedAt)).map(draft => `
-        <div class="card p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
-            <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">${draft.templateTitle} (Rascunho)</h4>
-            <p class="text-xs text-yellow-700 dark:text-yellow-400">Última edição por ${draft.createdByName || draft.createdByEmail} em ${new Date(draft.lastUpdatedAt).toLocaleString()}</p>
-            <div class="mt-3 flex gap-2">
-                <button class="btn btn-sm btn-primary" onclick="fillReport('${draft.templateId}', '${draft.id}')"><i data-lucide="edit" class="w-4 h-4"></i> Continuar</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteDraft('${draft.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Excluir</button>
-            </div>
-        </div>`).join('');
+         <div class="card p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+             <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">${draft.templateTitle} (Rascunho)</h4>
+             <p class="text-xs text-yellow-700 dark:text-yellow-400">Última edição por ${draft.createdByName || draft.createdByEmail} em ${new Date(draft.lastUpdatedAt).toLocaleString()}</p>
+             <div class="mt-3 flex gap-2">
+                 <button class="btn btn-sm btn-primary" onclick="fillReport('${draft.templateId}', '${draft.id}')"><i data-lucide="edit" class="w-4 h-4"></i> Continuar</button>
+                 <button class="btn btn-sm btn-danger" onclick="deleteDraft('${draft.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i> Excluir</button>
+             </div>
+         </div>`).join('');
     try { lucide.createIcons(); } catch(e) {}
 }
 function renderUsersTable() {
-     if (!elements.usersTableBody) return; 
+     if (!elements.usersTableBody) return;
      if (state.currentUser?.profile === 'admin') { renderPendingUsers(); }
-     
+
      const usersToRender = state.users.filter(u => u.id !== 'local_admin' || u.id === state.currentUser?.id);
 
      if (usersToRender.length === 0) { elements.usersTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-gray-500"><i data-lucide="users" class="w-12 h-12 mx-auto mb-3 opacity-50"></i><p>Nenhum usuário.</p></td></tr>`; try{lucide.createIcons();}catch(e){} return; }
@@ -1615,7 +1569,7 @@ function renderUsersTable() {
           const isAuthorized = user.autorizado === undefined || user.autorizado === true;
           let statusBadge = '';
           if (!isAuthorized) { statusBadge = `<span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 ml-2">Pendente</span>`; }
-          
+
           const isProtectedAdmin = user.profile === 'admin' && (user.id === 'local_admin' || user.id === state.currentUser?.id);
           const isCurrentUser = user.id === state.currentUser?.id;
 
@@ -1631,14 +1585,14 @@ function renderPendingUsers() {
      elements.pendingUsersContainer.classList.remove('hidden');
      elements.pendingUsersTableBody.innerHTML = state.pendingUsers.map(user => `
           <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-               <td class="py-3 px-4">${user.name}</td>
-               <td class="py-3 px-4 text-gray-600 dark:text-gray-400">${user.email}</td>
-               <td class="py-3 px-4 text-center">
-                    <div class="flex justify-center gap-2">
-                         <button class="btn btn-sm btn-success" title="Aprovar" onclick="approveUser('${user.id}')"><i data-lucide="check"></i></button>
-                         <button class="btn btn-sm btn-danger" title="Negar" onclick="denyUser('${user.id}')"><i data-lucide="x"></i></button>
-                    </div>
-               </td>
+                 <td class="py-3 px-4">${user.name}</td>
+                 <td class="py-3 px-4 text-gray-600 dark:text-gray-400">${user.email}</td>
+                 <td class="py-3 px-4 text-center">
+                      <div class="flex justify-center gap-2">
+                           <button class="btn btn-sm btn-success" title="Aprovar" onclick="approveUser('${user.id}')"><i data-lucide="check"></i></button>
+                           <button class="btn btn-sm btn-danger" title="Negar" onclick="denyUser('${user.id}')"><i data-lucide="x"></i></button>
+                      </div>
+                 </td>
           </tr>`).join('');
      try { lucide.createIcons(); } catch(e) {}
 }
@@ -1646,14 +1600,14 @@ function showAddUserModal() {
     elements.userModalTitle.textContent = 'Adicionar Novo Usuário';
     elements.userForm.reset();
     elements.userForm.querySelector('#user-id').value = '';
-    
+
     document.getElementById('password-field-container').classList.remove('hidden');
     elements.userPasswordInput.setAttribute('required', 'required');
 
     elements.userForm.querySelector('#user-profile').value = 'user';
     elements.userForm.querySelectorAll('input[type="checkbox"][data-permission]').forEach(check => {
         const perm = check.dataset.permission;
-        check.checked = userPermissions[perm] || false; 
+        check.checked = userPermissions[perm] || false;
     });
 
     elements.userModal.classList.add('active');
@@ -1661,13 +1615,13 @@ function showAddUserModal() {
 function editUser(id) {
     const user = state.users.find(u => u.id == id);
     if (!user) { showToast('Usuário não encontrado.', 'error'); return; }
-    
+
     elements.userModalTitle.textContent = `Editar Usuário: ${user.name}`;
     elements.userForm.querySelector('#user-id').value = user.id;
     elements.userForm.querySelector('#user-name').value = user.name;
     elements.userForm.querySelector('#user-email').value = user.email;
     elements.userForm.querySelector('#user-profile').value = user.profile;
-    
+
     document.getElementById('password-field-container').classList.add('hidden');
     elements.userPasswordInput.removeAttribute('required');
 
@@ -1680,16 +1634,16 @@ function editUser(id) {
 }
 async function updateUserAuthorization(uid, authorized) {
     if (!isFirebaseReady) { showToast("Firebase não pronto. Operação local não suportada.", "error"); return; }
-    
+
     const user = state.pendingUsers.find(u => u.id === uid);
     if (!user) { showToast("Usuário pendente não encontrado.", "error"); return; }
 
     const userRef = doc(db, USERS_COLLECTION_PATH, uid);
-    
+
     if (authorized) {
-        await updateDoc(userRef, { 
-            autorizado: true,
-            permissions: user.permissions || userPermissions
+        await updateDoc(userRef, {
+             autorizado: true,
+             permissions: user.permissions || userPermissions
         }).then(() => {
             showToast(`Usuário ${user.name} aprovado com sucesso!`, 'success');
             logActivity("user-approved", { targetUid: uid, targetEmail: user.email });
@@ -1758,10 +1712,10 @@ function handleDictationClick(buttonElement) {
 
         const current = target.value;
         const needsSpace =
-            current.length > 0 &&
-            transcript.trim().length > 0 &&
-            !current.endsWith(" ") &&
-            !current.match(/[\.\,\?\!]$/);
+             current.length > 0 &&
+             transcript.trim().length > 0 &&
+             !current.endsWith(" ") &&
+             !current.match(/[\.\,\?\!]$/);
 
         target.value = current + (needsSpace ? " " : "") + transcript;
         target.focus();
@@ -1786,7 +1740,7 @@ function handleDictationClick(buttonElement) {
     showToast("Comece a falar...", "info");
 }
 // CORREÇÃO: Inicialização da API de Reconhecimento de Fala
-function setupSpeechRecognition() { 
+function setupSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
@@ -1813,21 +1767,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Inicialização UI básica
     if (state.darkMode) { document.documentElement.classList.add('dark'); if(elements.themeToggle) elements.themeToggle.classList.add('active'); }
     else { document.documentElement.classList.remove('dark'); if(elements.themeToggle) elements.themeToggle.classList.add('active'); }
-    
+
     const loginForm = document.getElementById('login-form');
-    
+
     // --- Criação do botão Google ---
     const googleBtn = document.createElement('button');
     googleBtn.id = 'login-google-btn'; googleBtn.type = 'button';
     googleBtn.className = 'btn w-full mt-4 bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-md';
     googleBtn.innerHTML = '<i data-lucide="mail" class="w-5 h-5"></i> Entrar com Google';
     document.querySelector('#login-screen .bg-white .mt-6')?.appendChild(googleBtn);
-    
+
     // --- Criação e Listener do Toggle de Senha de Login ---
     if (elements.loginPasswordInput) {
         const passwordDiv = elements.loginPasswordInput.closest('div');
         if (passwordDiv && !document.getElementById('toggle-login-password-visibility')) {
-            passwordDiv.classList.add('relative'); 
+            passwordDiv.classList.add('relative');
             const toggleBtn = document.createElement('button');
             toggleBtn.type = 'button'; toggleBtn.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700';
             toggleBtn.id = 'toggle-login-password-visibility'; toggleBtn.title = 'Mostrar/Esconder senha';
@@ -1844,7 +1798,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.togglePasswordVisibility && elements.userPasswordInput) {
         elements.togglePasswordVisibility.addEventListener('click', (e) => { e.preventDefault(); togglePasswordVisibility(elements.userPasswordInput, e.currentTarget); });
     }
-    
+
     // 3. Setup de Event Listeners
     elements.loginForm?.addEventListener('submit', handleLogin);
     elements.logoutBtn?.addEventListener('click', handleLogout);
@@ -1866,16 +1820,16 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.notificationList?.addEventListener('click', handleNotificationClick);
     elements.closeViewReportBtn?.addEventListener('click', closeViewReportModal);
     elements.viewReportModal?.addEventListener('click', (event) => { if (event.target === elements.viewReportModal) closeViewReportModal(); });
-    
+
     document.querySelectorAll('#main-nav .nav-item').forEach(item => { item.addEventListener('click', (e) => { e.preventDefault(); switchPage(item.dataset.page); }); });
 
     // Setup de componentes e listeners dinâmicos
     setupBuilderEventListeners();
     setupFillReportEventListeners();
-    
+
     // 4. Inicialização de serviços
     initFirebase();
-    initSortable(); 
+    initSortable();
     setupSpeechRecognition();
 
     setTimeout(() => { try { lucide.createIcons(); } catch(e) {} }, 100);
@@ -1906,10 +1860,3 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
-
-
-
-
-
-
-
