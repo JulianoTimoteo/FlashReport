@@ -1167,6 +1167,52 @@ function renderBuilderComponents() {
     try { lucide.createIcons(); } catch(e) {}
 }
 
+// --- RENDER DE COMPONENTES (Builder e Preview) ---
+
+// Esta função precisa vir primeiro, pois é chamada dentro de renderPreviewComponents()
+function renderSinglePreviewComponent(component, isFillForm = false, value = null) {
+    const safeId = component.id ? component.id : `auto_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const inputId = `${isFillForm ? 'fill' : 'preview'}_${safeId}`;
+    const nameAttr = `component_${component.order ?? 0}`;
+    const requiredAttr = component.required && isFillForm ? 'required' : '';
+    const baseClass = isFillForm ? 'form-input' : 'form-input pointer-events-none opacity-70';
+    let inputHtml = '';
+
+    switch (component.type) {
+        case 'text':
+            inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Digite..." value="${value || ''}" ${requiredAttr}>`;
+            break;
+        case 'textarea':
+            inputHtml = `
+                <div class="relative">
+                    <textarea id="${inputId}" name="${nameAttr}" class="${baseClass} pr-10" rows="3" placeholder="Digite ou dite..." ${requiredAttr}>${value || ''}</textarea>
+                    <button type="button" class="dictation-button absolute right-3 top-3" data-target="${inputId}" title="Ditar" onclick="handleDictationClick(this)">
+                        <i data-lucide="mic" class="w-5 h-5"></i>
+                    </button>
+                </div>`;
+            break;
+        case 'select':
+            inputHtml = `<select id="${inputId}" name="${nameAttr}" class="${baseClass}" ${requiredAttr}>
+                <option value="">-- Selecione --</option>
+                ${(component.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>`;
+            break;
+        case 'date':
+            inputHtml = `<input type="date" id="${inputId}" name="${nameAttr}" class="${baseClass}" value="${value || ''}" ${requiredAttr}>`;
+            break;
+        case 'image':
+            inputHtml = `<input type="file" id="${inputId}" accept="image/*" class="block w-full text-sm text-gray-500" onchange="handleFileUpload(this, 'image')">`;
+            break;
+        case 'file':
+            inputHtml = `<input type="file" id="${inputId}" accept=".xlsx,.doc,.docx,.pdf,.txt" class="block w-full text-sm text-gray-500" onchange="handleFileUpload(this, 'file')">`;
+            break;
+        default:
+            inputHtml = `<input type="text" id="${inputId}" name="${nameAttr}" class="${baseClass}" placeholder="Campo" value="${value || ''}" ${requiredAttr}>`;
+    }
+
+    return `<div class="mb-4"><label class="block text-sm font-medium mb-1">${component.label || 'Campo'}</label>${inputHtml}</div>`;
+}
+
 function renderPreviewComponents() {
     if (!elements.previewComponents) return;
     if (state.currentReportComponents.length === 0) {
@@ -1200,6 +1246,10 @@ function renderPreviewComponents() {
             html += renderSinglePreviewComponent(comp);
         }
     }
+
+    elements.previewComponents.innerHTML = html;
+    try { lucide.createIcons(); } catch (e) {}
+}
 
 
      let inputHtml = '';
@@ -1833,6 +1883,7 @@ window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
 
 window.handleDictationClick = handleDictationClick;
+
 
 
 
