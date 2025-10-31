@@ -634,22 +634,33 @@ function initSortable() { 
             animation: 150,
             ghostClass: 'sortable-ghost',
             
-            onEnd: function(evt) {
-                const { newIndex, oldIndex } = evt;
-                if (newIndex === oldIndex) return;
+            onEnd: function (evt) {
+    const { newIndex, oldIndex } = evt;
+    if (newIndex === oldIndex) return;
+    if (
+        oldIndex < 0 ||
+        oldIndex >= state.currentReportComponents.length ||
+        newIndex < 0 ||
+        newIndex > state.currentReportComponents.length
+    ) {
+        console.warn("[Sortable] Índice inválido detectado:", oldIndex, newIndex);
+        return;
+    }
 
-                const movedItem = state.currentReportComponents.splice(oldIndex, 1)[0];
-                state.currentReportComponents.splice(newIndex, 0, movedItem);
+    const movedItem = state.currentReportComponents.splice(oldIndex, 1)[0];
+    if (!movedItem) {
+        console.error("[Sortable] Item movido é indefinido. Abortando reorder.");
+        return;
+    }
 
-                state.currentReportComponents.forEach((comp, index) => {
-                    comp.order = index;
-                });
-                
-                renderBuilderComponents();
-                renderPreviewComponents();
+    state.currentReportComponents.splice(newIndex, 0, movedItem);
+    state.currentReportComponents.forEach((comp, i) => (comp.order = i));
 
-                console.log(`[Sortable] Reordenado de ${oldIndex} para ${newIndex}.`);
-                showToast('Ordem atualizada!');
+    renderBuilderComponents();
+    renderPreviewComponents();
+
+    console.log(`[Sortable] Reordenado de ${oldIndex} para ${newIndex}.`);
+    showToast("Ordem atualizada!");
             }
         });
     }
@@ -1799,4 +1810,5 @@ window.showToast = showToast;
 window.handleTableAddRow = handleTableAddRow;
 window.handleTableRemoveRow = handleTableRemoveRow;
 window.handleFileUpload = handleFileUpload;
+
 window.handleDictationClick = handleDictationClick;
